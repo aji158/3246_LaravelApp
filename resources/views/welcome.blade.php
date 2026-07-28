@@ -104,7 +104,8 @@
                 </div>
 
                 <!-- Logo -->
-                <img src="{{ asset('storage/' . $partner->logo_url) }}"
+                {{-- KODE BARU (BENAR) --}}
+                    <img src="{{ $partner->logo }}" alt="{{ $partner->name }}">
                     alt="{{ $partner->name }}"
                     class="relative z-10 h-24 object-contain grayscale group-hover:grayscale-0 transition duration-500">
 
@@ -185,7 +186,8 @@
         <div
             class="group bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-2xl transition-all duration-300 overflow-hidden">
             <div class="relative overflow-hidden aspect-[3/4]">
-                <img src="{{ ($event->poster_path && Storage::disk('public')->exists($event->poster_path)) ? asset('storage/' . $event->poster_path) : 'https://placehold.co/200x600' }}"
+               {{-- KODE BARU (BENAR) --}}
+                    <img src="{{ $event->image }}" alt="{{ $event->title }}">
                     alt="{{ $event->title }}"
                     class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
                 <div
