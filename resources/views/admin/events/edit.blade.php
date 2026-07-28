@@ -7,9 +7,9 @@
 @section('content')
 <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm max-w-3xl">
 
-    <form action="{{ route('admin.events.update', $event->id) }}" method="POST" enctype="multipart/form-data" class="space-y-6">
-        @csrf
-        @method('PUT')
+   <form action="{{ route('admin.partners.update', $partner->id) }}" method="POST" enctype="multipart/form-data">
+    @csrf
+    @method('PUT')
 
         <!-- Judul -->
         <div>
@@ -70,37 +70,43 @@
         </div>
 
         <div>
-            <label class="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-wide">
-                Poster Event (Opsional)
-            </label>
+    <label class="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-wide">
+        Poster Event (Opsional)
+    </label>
 
-            <input
-                type="file"
-                name="poster"
-                accept="image/*"
-                class="w-full px-5 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl 
-               focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 
-               outline-none transition font-medium">
+    <input type="file" name="logo_url" id="logo_url"
+           class="w-full px-5 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
 
-            {{-- Preview / Link poster lama --}}
-            @if(!empty($event->poster_path))
-            <p class="text-sm text-slate-500 mt-2">
-                Poster saat ini:
-                <a href="{{ asset('storage/' . $event->poster_path) }}"
-                    target="_blank"
-                    class="text-indigo-600 hover:underline">
-                    Lihat
+    {{-- Preview Poster Saat Ini --}}
+    @php
+        $currentPoster = $event->poster ?? $event->poster_path ?? null;
+    @endphp
+
+    @if(!empty($currentPoster))
+        <div class="mt-3 flex items-center gap-3">
+            <span class="text-sm text-slate-500">Poster saat ini:</span>
+            
+            {{-- Jika berupa URL Cloudinary --}}
+            @if(Str::startsWith($currentPoster, ['http://', 'https://']))
+                <a href="{{ $currentPoster }}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1 bg-indigo-50 text-indigo-600 rounded-lg text-xs font-bold hover:bg-indigo-100 transition">
+                    🖼️ Lihat Poster Cloudinary
                 </a>
-            </p>
+            {{-- Jika berupa File Lokal --}}
+            @else
+                <a href="{{ asset('storage/' . $currentPoster) }}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-100 text-slate-600 rounded-lg text-xs font-bold hover:bg-slate-200 transition">
+                    📁 Lihat File Lokal
+                </a>
             @endif
-
-            {{-- Error --}}
-            @error('poster')
-            <span class="text-red-500 text-sm mt-1 block">
-                {{ $message }}
-            </span>
-            @enderror
         </div>
+    @endif
+
+    {{-- Error --}}
+    @error('poster')
+        <span class="text-red-500 text-sm mt-1 block">
+            {{ $message }}
+        </span>
+    @enderror
+</div>
 
         <!-- Tombol -->
         <div class="flex justify-between items-center pt-4">

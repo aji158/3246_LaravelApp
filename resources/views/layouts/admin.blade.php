@@ -33,7 +33,7 @@
         </div>
 
         <!-- Menu -->
-        <nav class="flex-1 space-y-2">
+        <nav class="flex-1 space-y-2 overflow-y-auto">
             <p class="text-[10px] font-bold uppercase tracking-widest text-indigo-400 mb-4 px-2">
                 Main Menu
             </p>
@@ -97,31 +97,37 @@
                 Partner
             </a>
 
-            <div class="pt-4 border-t border-indigo-800/60">
-        
-            </div>
-
-            <!-- Kelola Jabatan (UAS) -->
-            <a href="{{ route('admin.jabatan.index') }}"
-                class="flex items-center gap-3 px-4 py-3 {{ request()->routeIs('admin.jabatan.*') ? 'bg-indigo-800 text-white' : 'hover:bg-indigo-800' }} rounded-xl font-bold transition">
+            <!-- Kelola Ulasan (UAS) -->
+            <a href="{{ route('admin.reviews.index') }}"
+                class="flex items-center gap-3 px-4 py-3 {{ request()->routeIs('admin.reviews.*') ? 'bg-indigo-800 text-white' : 'hover:bg-indigo-800' }} rounded-xl font-bold transition">
                 
-                <svg class="w-5 h-5 {{ request()->routeIs('admin.jabatan.*') ? 'text-indigo-300' : 'text-indigo-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-5 h-5 {{ request()->routeIs('admin.reviews.*') ? 'text-indigo-300' : 'text-indigo-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                        d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
                 </svg>
-                Kelola Jabatan
+                Ulasan & Rating
             </a>
 
-            <!-- Kelola Pengurus (UAS) -->
-            <a href="{{ route('admin.pengurus.index') }}"
-                class="flex items-center gap-3 px-4 py-3 {{ request()->routeIs('admin.pengurus.*') ? 'bg-indigo-800 text-white' : 'hover:bg-indigo-800' }} rounded-xl font-bold transition">
+                <!-- Khusus Superadmin: Menu Kelola Penyelenggara -->
+        @if(auth()->check() && auth()->user()->role === 'superadmin')
+        <div class="pt-4 border-t border-indigo-800/60">
+            <p class="text-[10px] font-bold uppercase tracking-widest text-indigo-400 mb-2 px-2">
+                Superadmin Area
+            </p>
+            
+            <a href="{{ route('admin.organizers.index') }}"
+                class="flex items-center gap-3 px-4 py-3 {{ request()->routeIs('admin.organizers.*') ? 'bg-indigo-800 text-white' : 'hover:bg-indigo-800' }} rounded-xl font-bold transition">
                 
-                <svg class="w-5 h-5 {{ request()->routeIs('admin.pengurus.*') ? 'text-indigo-300' : 'text-indigo-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                        d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                <svg class="w-5 h-5 {{ request()->routeIs('admin.organizers.*') ? 'text-indigo-300' : 'text-indigo-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5m0 0h4m-4 0V11m0 0h4m-4 0H9" />
                 </svg>
-                Kelola Pengurus
+                
+                Kelola Penyelenggara
             </a>
+        </div>
+        @endif
+
+
         </nav>
         
         <!-- Logout -->
@@ -145,17 +151,27 @@
         <header class="flex justify-between items-center mb-10 w-full">
             <div>
                 <h1 class="text-3xl font-black">@yield('page_title', 'Dashboard')</h1>
-                <p class="text-slate-500 font-medium">@yield('page_subtitle', 'Selamat datang kembali, Admin!')</p>
+                <p class="text-slate-500 font-medium">
+                    Selamat datang kembali, 
+                    <span class="font-bold text-indigo-600">
+                        {{ auth()->user()->organization_name ?? auth()->user()->name }}
+                    </span>!
+                </p>
             </div>
 
+            <!-- Header Profile Info Dinamis -->
             <div class="flex items-center gap-4">
                 <div class="text-right hidden md:block">
-                    <p class="font-bold">Admin - Anugrah Sulis Setiaji</p>
-                    <p class="text-xs text-slate-400">Penyelenggara Utama</p>
+                    <p class="font-bold text-slate-800">
+                        {{ auth()->user()->organization_name ?? auth()->user()->name }}
+                    </p>
+                    <p class="text-xs text-slate-400 capitalize font-medium">
+                        {{ auth()->user()->role === 'superadmin' ? 'Penyelenggara Utama (Superadmin)' : 'Penyelenggara / Ormawa' }}
+                    </p>
                 </div>
 
                 <div class="w-12 h-12 bg-white rounded-2xl shadow-sm border flex items-center justify-center p-1">
-                    <img src="https://ui-avatars.com/api/?name=admin&background=6366f1&color=fff" class="rounded-xl">
+                    <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->organization_name ?? auth()->user()->name) }}&background=6366f1&color=fff" class="rounded-xl">
                 </div>
             </div>
         </header>

@@ -14,6 +14,7 @@ class Event extends Model
         'date',
         'location',
         'price',
+        'poster',
         'stock',
         'poster_path'
     ];

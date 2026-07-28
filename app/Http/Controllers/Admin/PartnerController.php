@@ -5,67 +5,103 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Partner;
-
+use Cloudinary\Cloudinary;
 
 class PartnerController extends Controller
 {
-    public function index(Request $request)
+    /**
+     * Helper privat untuk inisialisasi Cloudinary SDK
+     */
+    private function getCloudinaryInstance()
     {
-        $query = Partner::query();
+        return new Cloudinary([
+            'cloud' => [
+                'cloud_name' => config('services.cloudinary.cloud_name') ?? env('CLOUDINARY_CLOUD_NAME'),
+                'api_key'    => config('services.cloudinary.api_key') ?? env('CLOUDINARY_API_KEY'),
+                'api_secret' => config('services.cloudinary.api_secret') ?? env('CLOUDINARY_API_SECRET'),
+            ],
+            'url' => [
+                'secure' => true
+            ]
+        ]);
+    }
 
-        // fitur search
-        if ($request->search) {
-            $query->where('name', 'LIKE', '%' . $request->search . '%');
-        }
-
-        $partners = $query->latest()->get();
-
+    public function index()
+    {
+        $partners = Partner::latest()->paginate(10);
         return view('admin.partners.index', compact('partners'));
     }
+    
     public function create()
     {
         return view('admin.partners.create');
     }
+
     public function store(Request $request)
     {
         $data = $request->validate([
-            'name' => 'required|max:255',
-            'logo_url' => 'nullable|image|mimes:jpg,jpeg,png,svg|max:2048'
+            'name'     => 'required|string|max:255',
+            'logo_url' => 'nullable|image|mimes:jpg,jpeg,png,svg,webp|max:2048'
         ]);
 
+        // Upload ke Cloudinary jika ada file logo
         if ($request->hasFile('logo_url')) {
-            $data['logo_url'] = $request->file('logo_url')
-                ->store('partners', 'public');
+            $cloudinary = $this->getCloudinaryInstance();
+
+            $uploadedFile = $cloudinary->uploadApi()->upload(
+                $request->file('logo_url')->getRealPath(),
+                [
+                    'folder' => 'amikom_partner_logos'
+                ]
+            );
+
+            // Simpan URL HTTPS permanen ke kolom 'logo_url'
+            $data['logo_url'] = $uploadedFile['secure_url'];
         }
 
         Partner::create($data);
 
         return redirect()
             ->route('admin.partners.index')
-            ->with('success', 'Partner berhasil ditambahkan');
+            ->with('success', 'Partner berhasil ditambahkan ke Cloudinary!');
     }
+
     public function edit(Partner $partner)
     {
         return view('admin.partners.edit', compact('partner'));
     }
+
     public function update(Request $request, Partner $partner)
-    {
-        $data = $request->validate([
-            'name' => 'required|max:255',
-            'logo_url' => 'nullable|image'
-        ]);
+{
+    // 1. Validasi Input
+    $data = $request->validate([
+        'name'     => 'required|string|max:255',
+        'logo_url' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048'
+    ]);
 
-        if ($request->hasFile('logo_url')) {
-            $data['logo_url'] = $request->file('logo_url')
-                ->store('partners', 'public');
-        }
+    // 2. Jika ada file logo baru yang diunggah
+    if ($request->hasFile('logo_url')) {
+        $cloudinary = $this->getCloudinaryInstance();
 
-        $partner->update($data);
+        $uploadedFile = $cloudinary->uploadApi()->upload(
+            $request->file('logo_url')->getRealPath(),
+            [
+                'folder' => 'amikom_partner_logos'
+            ]
+        );
 
-        return redirect()
-            ->route('admin.partners.index')
-            ->with('success', 'Partner berhasil diupdate');
+        // Simpan URL Cloudinary ke data yang akan di-update
+        $data['logo_url'] = $uploadedFile['secure_url'];
     }
+
+    // 3. Update data partner di MySQL
+    $partner->update($data);
+
+    return redirect()
+        ->route('admin.partners.index')
+        ->with('success', 'Partner berhasil diupdate!');
+}
+
     public function destroy(Partner $partner)
     {
         $partner->delete();

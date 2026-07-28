@@ -18,19 +18,27 @@ class RegisterController extends Controller
     public function register(Request $request)
     {
         $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
+            'name'              => 'required|string|max:255',
+            'email'             => 'required|string|email|max:255|unique:users',
+            'password'          => 'required|string|min:8|confirmed',
+            'role'              => 'required|in:customer,organizer',
+            'organization_name' => 'nullable|required_if:role,organizer|string|max:255',
         ]);
 
         $user = User::create([
-            'name'     => $request->name,
-            'email'    => $request->email,
-            'password' => Hash::make($request->password),
-            'role'     => 'customer', // Default role saat daftar adalah customer
+            'name'              => $request->name,
+            'email'             => $request->email,
+            'password'          => Hash::make($request->password),
+            'role'              => $request->role,
+            'organization_name' => $request->role === 'organizer' ? $request->organization_name : null,
         ]);
 
         Auth::login($user);
+
+        // Jika pendaftar adalah Organizer/Ormawa, arahkan langsung ke Dashboard Admin
+        if ($user->role === 'organizer') {
+            return redirect()->route('admin.dashboard')->with('success', 'Registrasi Organisasi Berhasil! Selamat datang di Dashboard.');
+        }
 
         return redirect('/')->with('success', 'Registrasi berhasil! Selamat datang.');
     }

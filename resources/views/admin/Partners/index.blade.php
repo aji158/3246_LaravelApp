@@ -84,9 +84,20 @@
                     </td>
 
                     <td class="px-6 py-4">
-                        <img src="{{ asset('storage/' . $partner->logo_url) }}"
-                            class="w-14 h-14 rounded-xl object-cover border">
-                    </td>
+                    @if(!empty($partner->logo_url))
+                        {{-- Jika berupa URL Cloudinary (dimulai http/https) --}}
+                        @if(\Illuminate\Support\Str::startsWith($partner->logo_url, ['http://', 'https://']))
+                            <img src="{{ $partner->logo_url }}" alt="{{ $partner->name }}" class="w-12 h-12 object-contain rounded-lg">
+                        {{-- Jika berupa File Lokal --}}
+                        @else
+                            <img src="{{ asset('storage/' . $partner->logo_url) }}" alt="{{ $partner->name }}" class="w-12 h-12 object-contain rounded-lg">
+                        @endif
+                    @else
+                        <div class="w-12 h-12 bg-slate-100 text-slate-400 rounded-lg flex items-center justify-center text-[10px] font-bold">
+                            No Logo
+                        </div>
+                    @endif
+                </td>
 
                     <td class="px-6 py-4 font-semibold text-slate-700">
                         {{ $partner->name }}

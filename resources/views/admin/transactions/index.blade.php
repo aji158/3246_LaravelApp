@@ -20,22 +20,26 @@
         </button>
     </div>
 
-    <!-- KALKULASI DATA DARI DATABASE UNTUK CHART -->
+    <!-- KALKULASI LOGIKA STATUS TRANSAKSI (TERMASUK HARGA RP 0 UNTUK EVENT GRATIS) -->
     @php
+        // 1. SUCCESS: Status Success/Settlement DAN total harga > 0
         $success = $transactions->filter(function($trx) {
-            return in_array(strtolower($trx->status), ['success', 'settlement']);
+            return in_array(strtolower($trx->status), ['success', 'settlement']) && $trx->total_price > 0;
         })->count();
 
+        // 2. PENDING: Status Pending
         $pending = $transactions->filter(function($trx) {
             return strtolower($trx->status) === 'pending';
         })->count();
 
+        // 3. FREE: Status 'free' ATAU (Success/Settlement TAPI total harga == 0)
         $free = $transactions->filter(function($trx) {
-            return strtolower($trx->status) === 'free';
+            $isFreeStatus = strtolower($trx->status) === 'free';
+            $isZeroPrice  = in_array(strtolower($trx->status), ['success', 'settlement']) && $trx->total_price == 0;
+            return $isFreeStatus || $isZeroPrice;
         })->count();
     @endphp
 
-    <!-- TABLE -->
     <!-- TABLE -->
     <div class="bg-white rounded-2xl shadow-md border border-slate-100 overflow-hidden">
         <div class="overflow-x-auto">
@@ -89,7 +93,7 @@
 
                         <!-- STATUS -->
                         <td class="px-6 py-4 text-center">
-                            @if(in_array(strtolower($trx->status), ['success', 'settlement']))
+                            @if(in_array(strtolower($trx->status), ['success', 'settlement']) && $trx->total_price > 0)
                             <span class="inline-flex items-center px-3 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full text-xs font-bold shadow-sm">
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5 animate-pulse"></span>
                                 Success
@@ -98,6 +102,11 @@
                             <span class="inline-flex items-center px-3 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-full text-xs font-bold shadow-sm">
                                 <span class="w-1.5 h-1.5 rounded-full bg-amber-500 mr-1.5 animate-pulse"></span>
                                 Pending
+                            </span>
+                            @elseif(strtolower($trx->status) == 'free' || $trx->total_price == 0)
+                            <span class="inline-flex items-center px-3 py-1 bg-slate-100 text-slate-700 border border-slate-300 rounded-full text-xs font-bold shadow-sm">
+                                <span class="w-1.5 h-1.5 rounded-full bg-slate-500 mr-1.5"></span>
+                                Gratis (Free)
                             </span>
                             @else
                             <span class="inline-flex items-center px-3 py-1 bg-rose-50 text-rose-700 border border-rose-200 rounded-full text-xs font-bold shadow-sm">
@@ -108,7 +117,11 @@
 
                         <!-- TOTAL HARGA -->
                         <td class="px-6 py-4 text-right font-black text-indigo-600 text-base">
-                            Rp {{ number_format($trx->total_price, 0, ',', '.') }}
+                            @if($trx->total_price == 0)
+                                <span class="text-slate-400 text-sm font-semibold">Rp 0 (Gratis)</span>
+                            @else
+                                Rp {{ number_format($trx->total_price, 0, ',', '.') }}
+                            @endif
                         </td>
 
                     </tr>
@@ -162,15 +175,15 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-    const success = @json($success);
-    const pending = @json($pending);
-    const free = @json($free);
+    const success = {!! json_encode($success) !!};
+    const pending = {!! json_encode($pending) !!};
+    const free    = {!! json_encode($free) !!};
 
     // BAR CHART
     new Chart(document.getElementById('barChart'), {
         type: 'bar',
         data: {
-            labels: ['Success', 'Pending', 'Free'],
+            labels: ['Success (Berbayar)', 'Pending', 'Free (Gratis)'],
             datasets: [{
                 label: 'Jumlah Transaksi',
                 data: [success, pending, free],
@@ -187,7 +200,7 @@
     new Chart(document.getElementById('pieChart'), {
         type: 'pie',
         data: {
-            labels: ['Success', 'Pending', 'Free'],
+            labels: ['Success (Berbayar)', 'Pending', 'Free (Gratis)'],
             datasets: [{
                 data: [success, pending, free],
                 backgroundColor: ['#22c55e', '#f59e0b', '#64748b']

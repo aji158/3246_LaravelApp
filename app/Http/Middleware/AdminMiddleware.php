@@ -11,11 +11,12 @@ class AdminMiddleware
 {
     public function handle(Request $request, Closure $next): Response
     {
-        // BYPASS UJIAN: Jika user sudah terautentikasi (login), langsung loloskan saja!
-        if (Auth::check()) {
+        // Cek apakah user sudah login DAN role-nya BUKAN customer
+        if (Auth::check() && in_array(Auth::user()->role, ['admin', 'superadmin', 'organizer'])) {
             return $next($request);
         }
 
-        return redirect()->route('admin.login');
+        // Jika Customer nekat mengakses dashboard admin, tendang ke halaman utama
+        return redirect('/')->with('error', 'Anda tidak memiliki akses ke halaman Dashboard Admin.');
     }
 }

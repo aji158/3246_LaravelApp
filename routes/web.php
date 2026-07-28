@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\OrganizerController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MidtransWebhookController;
 use App\Http\Controllers\EventController;
@@ -31,7 +32,7 @@ Route::post('/register', [RegisterController::class, 'register']);
 Route::get('/auth/google', [GoogleController::class, 'redirectToGoogle'])->name('auth.google');
 Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
 
-// === SOAL 1 FITUR 2: Sistem Ulasan & Rating Bintang (Wajib Login) ===
+// === SOAL 1 FITUR 2: Kirim Ulasan & Rating Bintang (Wajib Login) ===
 Route::middleware(['auth'])->group(function () {
     Route::post('/events/{event}/reviews', [ReviewController::class, 'store'])->name('reviews.store');
 });
@@ -64,7 +65,9 @@ Route::get('/login', function () {
 
 // Grouping Utama URL /admin
 Route::prefix('admin')->name('admin.')->group(function () {
-
+// Rute Kelola Penyelenggara / Ormawa (Khusus Superadmin)
+Route::get('organizers', [OrganizerController::class, 'index'])->name('organizers.index');
+Route::delete('organizers/{organizer}', [OrganizerController::class, 'destroy'])->name('organizers.destroy');
     // Otentikasi Admin (Bisa diakses tanpa login)
     Route::get('login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('login', [AuthController::class, 'login'])->name('login.post');
@@ -78,6 +81,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('events', EventAdminController::class);
         Route::resource('categories', CategoryController::class);
         Route::resource('partners', PartnerController::class);
+
+        // Rute Moderasi & Monitoring Ulasan (UAS)
+        Route::get('reviews', [ReviewController::class, 'indexAdmin'])->name('reviews.index');
+        Route::delete('reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
 
         // Rute Laporan Transaksi Admin
         Route::get('transactions', [TransactionController::class, 'index'])->name('transactions.index');

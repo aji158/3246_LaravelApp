@@ -44,11 +44,26 @@
                         {{ $events->firstItem() + $index }}
                     </td>
 
-                    <!-- Poster -->
-                    <td class="px-8 py-6">
-                        <img src="{{ ($event->poster_path && Storage::disk('public')->exists($event->poster_path))? asset('storage/' . $event->poster_path): 'https://placehold.co/160x200' }}"
-                            class="w-16 h-20 rounded-xl object-cover shadow-sm">
-                    </td>
+                   <!-- Poster -->
+<td class="px-8 py-6">
+    @php
+        $img = $event->poster ?? $event->poster_path ?? null;
+    @endphp
+
+    @if($img)
+        @if(Str::startsWith($img, ['http://', 'https://']))
+            {{-- Jika URL Cloudinary --}}
+            <img src="{{ $img }}" alt="{{ $event->title }}" class="w-12 h-12 object-cover rounded-xl shadow-sm">
+        @else
+            {{-- Jika File Storage Lokal --}}
+            <img src="{{ asset('storage/' . $img) }}" alt="{{ $event->title }}" class="w-12 h-12 object-cover rounded-xl shadow-sm">
+        @endif
+    @else
+        <div class="w-12 h-12 bg-slate-100 text-slate-400 rounded-xl flex items-center justify-center text-xs font-bold">
+            No Pic
+        </div>
+    @endif
+</td>
 
                     <!-- Event -->
                     <td class="px-8 py-6">

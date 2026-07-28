@@ -32,4 +32,34 @@ class EventController extends Controller
     {
         return view('admin.events'); // halaman admin event list
     }
+
+    public function update(Request $request, Event $event)
+{
+    // ...
+    $data = $request->validate([
+        'category_id' => 'required',
+        'title'       => 'required',
+        'description' => 'nullable',
+        'date'        => 'required',
+        'location'    => 'required',
+        'price'       => 'required|numeric',
+        'stock'       => 'required|numeric',
+        'poster'      => 'nullable|image|max:2048'
+    ]);
+
+    if ($request->hasFile('poster')) {
+    $cloudinary = $this->getCloudinaryInstance();
+    $uploaded = $cloudinary->uploadApi()->upload(
+        $request->file('poster')->getRealPath(),
+        ['folder' => 'amikom_event_posters']
+    );
+    
+    // Set kedua key agar mengisi kolom 'poster' maupun 'poster_path' di MySQL
+    $data['poster']      = $uploaded['secure_url'];
+    $data['poster_path'] = $uploaded['secure_url'];
+}
+
+    $event->update($data); // <-- Pastikan $data dipassing ke sini
+    // ...
+}
 }
