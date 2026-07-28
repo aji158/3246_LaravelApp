@@ -25,23 +25,43 @@
     <!-- Navigation -->
     <nav
         class="glass sticky top-8 z-40 mx-4 mt-4 px-6 py-4 rounded-2xl border border-white/20 shadow-lg flex justify-between items-center">
-        <div class="flex items-center gap-2">
+        <a href="/" class="flex items-center gap-2">
             <div
                 class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-bold text-xl">
                 AH</div>
             <span class="text-xl font-bold tracking-tight">AmikomEventHub</span>
-        </div>
+        </a>
         
         <div class="hidden md:flex gap-8 font-medium">
-            <a href="#" class="text-indigo-600">Jelajahi</a>
-            <a href="#" class="hover:text-indigo-600 transition">Kategori</a>
+            <a href="/" class="text-indigo-600">Jelajahi</a>
+            <a href="#events" class="hover:text-indigo-600 transition">Kategori</a>
             <a href="#" class="hover:text-indigo-600 transition">Tentang Kami</a>
         </div>
-        <!-- <div class="flex gap-3">
-            <button class="px-5 py-2.5 rounded-xl font-semibold hover:bg-slate-200 transition">Login</button>
-            <button
-                class="px-5 py-2.5 bg-indigo-600 text-white rounded-xl font-semibold shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition">Daftar</button>
-        </div> -->
+
+        <!-- Dynamic Auth Navigation Buttons -->
+        <div class="flex items-center gap-3">
+            @auth
+                <a href="/admin/events" 
+                    class="px-5 py-2.5 rounded-xl font-semibold bg-slate-100 hover:bg-slate-200 text-slate-800 transition">
+                    Dashboard
+                </a>
+               <form action="{{ route('admin.logout') }}" method="POST" class="inline">
+                    @csrf
+                    <button type="submit" class="px-4 py-2.5 text-sm font-semibold text-red-500 hover:underline">
+                        Keluar
+                    </button>
+                </form>
+            @else
+                <a href="/admin/login" 
+                    class="px-5 py-2.5 rounded-xl font-semibold hover:bg-slate-200 transition text-slate-700">
+                    Masuk
+                </a>
+                <a href="{{ route('register') }}"
+                    class="px-5 py-2.5 bg-indigo-600 text-white rounded-xl font-semibold shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition">
+                    Daftar
+                </a>
+            @endauth
+        </div>
     </nav>
 
     @yield('content')
@@ -62,8 +82,8 @@
             <div>
                 <h4 class="text-white font-bold mb-6">Navigasi</h4>
                 <ul class="space-y-4">
-                    <li><a href="#" class="hover:text-white transition">Home</a></li>
-                    <li><a href="#" class="hover:text-white transition">Semua Event</a></li>
+                    <li><a href="/" class="hover:text-white transition">Home</a></li>
+                    <li><a href="#events" class="hover:text-white transition">Semua Event</a></li>
                     <li><a href="#" class="hover:text-white transition">Cara Bayar</a></li>
                 </ul>
             </div>

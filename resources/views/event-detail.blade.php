@@ -122,6 +122,69 @@
                 </li>
             </ul>
         </div>
+
+        <!-- ========================================== -->
+        <!-- SECTION ULASAN & RATING BINTANG (SOAL 1)   -->
+        <!-- ========================================== -->
+        <div class="pt-8 border-t border-slate-200 space-y-6">
+            <h3 class="text-2xl font-bold text-slate-800">Ulasan & Penilaian Peserta</h3>
+
+            @if(session('success'))
+                <div class="p-4 text-sm text-emerald-800 bg-emerald-100 rounded-2xl font-medium">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            <!-- Form Ulasan (Bisa diisi jika User Login) -->
+            @auth
+            <div class="bg-slate-50 p-6 rounded-3xl border border-slate-100 shadow-sm">
+                <h4 class="font-bold text-slate-800 mb-3">Beri Ulasan untuk Event Ini</h4>
+                <form action="{{ route('reviews.store', $event->id) }}" method="POST" class="space-y-4">
+                    @csrf
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-600 mb-1">Rating Bintang</label>
+                        <select name="rating" class="w-full md:w-1/3 p-3 rounded-xl border-slate-200 bg-white font-medium focus:ring-2 focus:ring-indigo-500">
+                            <option value="5">⭐⭐⭐⭐⭐ (5/5 - Sangat Puas)</option>
+                            <option value="4">⭐⭐⭐⭐ (4/5 - Puas)</option>
+                            <option value="3">⭐⭐⭐ (3/5 - Cukup)</option>
+                            <option value="2">⭐⭐ (2/5 - Kurang)</option>
+                            <option value="1">⭐ (1/5 - Kecewa)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-600 mb-1">Pengalaman / Testimoni</label>
+                        <textarea name="comment" rows="3" class="w-full p-4 rounded-xl border-slate-200 bg-white placeholder-slate-400 focus:ring-2 focus:ring-indigo-500" placeholder="Tuliskan ulasan jujur kamu mengenai acara ini..." required></textarea>
+                    </div>
+                    <button type="submit" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-100 transition">
+                        Kirim Ulasan
+                    </button>
+                </form>
+            </div>
+            @else
+            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-slate-500 text-sm">
+                Silakan <a href="{{ route('login') }}" class="text-indigo-600 font-bold underline">login</a> terlebih dahulu untuk memberikan ulasan.
+            </div>
+            @endauth
+
+            <!-- Daftar Ulasan Masuk -->
+            <div class="space-y-4">
+                @forelse($event->reviews ?? [] as $review)
+                    <div class="p-5 bg-white rounded-2xl border border-slate-100 shadow-sm space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-slate-800">{{ $review->user->name ?? 'Peserta' }}</span>
+                            <span class="text-amber-400 font-bold tracking-widest text-sm">
+                                {{ str_repeat('⭐', $review->rating) }}
+                            </span>
+                        </div>
+                        <p class="text-slate-600 text-sm leading-relaxed">{{ $review->comment }}</p>
+                        <p class="text-xs text-slate-400">{{ $review->created_at->diffForHumans() }}</p>
+                    </div>
+                @empty
+                    <p class="text-slate-400 italic text-sm">Belum ada ulasan untuk event ini. Jadi yang pertama memberikan testimoni!</p>
+                @endforelse
+            </div>
+        </div>
+
     </div>
 </main>
 

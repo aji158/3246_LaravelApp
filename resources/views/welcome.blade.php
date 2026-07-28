@@ -14,15 +14,24 @@
             Dari konser musik hingga workshop teknologi, semua ada di genggamanmu. Pesan aman & cepat dengan
             Midtrans.
         </p>
-        <div class="flex gap-4">
+        <div class="flex flex-wrap items-center gap-4">
             <a href="#events"
                 class="px-8 py-4 bg-indigo-600 text-white rounded-2xl font-bold text-lg shadow-xl shadow-indigo-200 hover:scale-105 transition-transform">
                 Mulai Jelajah
             </a>
-            <a href="#"
-                class="px-8 py-4 border-2 border-slate-200 rounded-2xl font-bold text-lg hover:border-indigo-600 hover:text-indigo-600 transition">
-                Cara Pesan
-            </a>
+
+            {{-- Menampilkan tombol sesuai status Auth/Login pengguna --}}
+            @auth
+                <a href="/admin/events"
+                    class="px-8 py-4 bg-slate-900 text-white rounded-2xl font-bold text-lg hover:bg-slate-800 transition">
+                    Dashboard Saya
+                </a>
+            @else
+                <a href="{{ route('register') }}"
+                    class="px-8 py-4 border-2 border-indigo-600 text-indigo-600 rounded-2xl font-bold text-lg hover:bg-indigo-600 hover:text-white transition">
+                    Daftar Sekarang
+                </a>
+            @endauth
         </div>
     </div>
     <div class="flex-1 relative">

@@ -10,21 +10,45 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // 1. Menjumlahkan semua nominal total_price dari kolom Transaksi Lunas
-        $totalRevenue = Transaction::whereIn('status', ['settlement', 'success'])->sum('total_price');
+        // Ambil data user/admin yang sedang login
+        $user = auth()->user();
 
-        // 2. Menghitung Berapa orang tamu yang tiketnya sudah Lunas
-        $ticketsSold = Transaction::whereIn('status', ['settlement', 'success'])->count();
+        // 0. Ambil daftar ID event HANYA milik admin yang sedang login
+        $myEventIds = Event::where('user_id', $user->id)->pluck('id');
 
-        // 3. Menghitung Jumlah Acara Mendatang yang aktif diselenggarakan
-        $activeEvents = Event::where('date', '>=', now())->count();
+        // 1. Menjumlahkan nominal total_price HANYA dari event milik admin ini
+        $totalRevenue = Transaction::whereIn('event_id', $myEventIds)
+            ->whereIn('status', ['settlement', 'success'])
+            ->sum('total_price');
 
-        // 4. Menghitung Transaksi Ngadat (Status belum dibayar pelanggan / Expired)
-        $pendingOrders = Transaction::where('status', 'pending')->count();
+        // 2. Menghitung tiket Lunas HANYA dari event milik admin ini
+        $ticketsSold = Transaction::whereIn('event_id', $myEventIds)
+            ->whereIn('status', ['settlement', 'success'])
+            ->count();
 
-        // 5. Menyertakan 5 daftar riwayat pesanan (History) paling mutakhir di panel
-        $recentTransactions = Transaction::with('event')->latest()->take(5)->get();
+        // 3. Menghitung Acara Mendatang HANYA milik admin ini
+        $activeEvents = Event::where('user_id', $user->id)
+            ->where('date', '>=', now())
+            ->count();
 
-        return view('admin.dashboard', compact('totalRevenue', 'ticketsSold', 'activeEvents', 'pendingOrders', 'recentTransactions'));
+        // 4. Menghitung Transaksi Pending HANYA dari event milik admin ini
+        $pendingOrders = Transaction::whereIn('event_id', $myEventIds)
+            ->where('status', 'pending')
+            ->count();
+
+        // 5. Riwayat 5 pesanan mutakhir HANYA untuk event milik admin ini
+        $recentTransactions = Transaction::whereIn('event_id', $myEventIds)
+            ->with('event')
+            ->latest()
+            ->take(5)
+            ->get();
+
+        return view('admin.dashboard', compact(
+            'totalRevenue', 
+            'ticketsSold', 
+            'activeEvents', 
+            'pendingOrders', 
+            'recentTransactions'
+        ));
     }
 }
