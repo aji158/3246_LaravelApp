@@ -14,7 +14,7 @@ use Exception;
 class CheckoutController extends Controller
 {
     /**
-     * 1. Menampilkan Halaman Form Checkout (Modul 10)
+     * 1. Menampilkan Halaman Form Checkout
      */
     public function create(Event $event)
     {
@@ -23,7 +23,7 @@ class CheckoutController extends Controller
     }
 
     /**
-     * 2. Memproses Simpan Data & Bypass untuk Event Gratis / Generate Snap Token Midtrans (Modul 11)
+     * 2. Memproses Simpan Data & Bypass untuk Event Gratis / Generate Snap Token Midtrans
      */
     public function store(Request $request, Event $event)
     {
@@ -66,9 +66,9 @@ class CheckoutController extends Controller
             // Potong Stok Tiket Saat Itu Juga
             $event->decrement('stock');
 
-            // Kirim E-Ticket ke Email Pembeli
+            // Kirim E-Ticket ke Email Pembeli (Gunakan Queue agar Async & tidak Timeout)
             try {
-                Mail::to($transaction->customer_email)->send(new EventTicketMail($transaction));
+                Mail::to($transaction->customer_email)->queue(new EventTicketMail($transaction));
             } catch (Exception $e) {
                 Log::error('Gagal mengirim email E-Ticket gratis: ' . $e->getMessage());
             }
@@ -144,8 +144,7 @@ class CheckoutController extends Controller
         $categories  = Category::all();
         $transaction = Transaction::with('event')->where('order_id', $order_id)->firstOrFail();
         
-        // Jika status lokal sudah 'success' (misal: event gratis atau webhook sudah jalan),
-        // langsung tampilkan view tanpa perlu panggil API Midtrans lagi
+        // Jika status lokal sudah 'success', langsung tampilkan view tanpa hit API lagi
         if (strtolower($transaction->status) === 'success') {
             return view('checkout.success', compact('transaction', 'categories'));
         }
@@ -174,9 +173,9 @@ class CheckoutController extends Controller
                             $transaction->event->decrement('stock');
                         }
                         
-                        // Kirimkan E-Ticket ke Email Pembeli
+                        // Kirimkan E-Ticket ke Email Pembeli (Gunakan Queue agar Async)
                         try {
-                            Mail::to($transaction->customer_email)->send(new EventTicketMail($transaction));
+                            Mail::to($transaction->customer_email)->queue(new EventTicketMail($transaction));
                         } catch (Exception $e) {
                             Log::error('Gagal mengirim email E-Ticket: ' . $e->getMessage());
                         }

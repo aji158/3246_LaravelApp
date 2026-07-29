@@ -25,11 +25,9 @@
         <div class="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm">
             <h3 class="text-xl font-bold mb-6 border-b pb-4">Pesanan Anda</h3>
             <div class="flex gap-6 items-start">
-                <img src="{{ ($event->poster_path && Storage::disk('public')->exists($event->poster_path))
-                      ? asset('storage/' . $event->poster_path)
-                      : 'https://placehold.co/200x200' }}" 
-                     alt="{{ $event->title }}" 
-                     class="w-24 h-24 rounded-2xl object-cover">
+                <img src="{{ \Illuminate\Support\Str::startsWith($event->poster_path, 'http') ? $event->poster_path : asset('storage/' . $event->poster_path) }}" 
+                alt="{{ $event->title }}"
+                class="w-full h-full object-cover rounded-2xl">
                 <div>
                     <h4 class="font-extrabold text-lg text-slate-800">{{ $event->title }}</h4>
                     <p class="text-slate-500 text-sm">
