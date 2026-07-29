@@ -22,22 +22,25 @@
 
     <div class="grid grid-cols-1 gap-8">
         <!-- Summary Card -->
-        <div class="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm">
-            <h3 class="text-xl font-bold mb-6 border-b pb-4">Pesanan Anda</h3>
-            <div class="flex gap-6 items-start">
-                <img src="{{ \Illuminate\Support\Str::startsWith($event->poster_path, 'http') ? $event->poster_path : asset('storage/' . $event->poster_path) }}" 
-                alt="{{ $event->title }}"
-                class="w-full h-full object-cover rounded-2xl">
-                <div>
-                    <h4 class="font-extrabold text-lg text-slate-800">{{ $event->title }}</h4>
-                    <p class="text-slate-500 text-sm">
-                        {{ \Carbon\Carbon::parse($event->date)->format('d M Y') }} • {{ $event->location }}
-                    </p>
-                    <p class="text-indigo-600 font-bold mt-2">
-                        1 x Rp {{ number_format($event->price, 0, ',', '.') }}
-                    </p>
-                </div>
-            </div>
+<div class="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm">
+    <h3 class="text-xl font-bold mb-6 border-b pb-4">Pesanan Anda</h3>
+    <div class="flex gap-6 items-center">
+        <!-- Container Gambar dengan Ukuran Tetap -->
+        <div class="w-24 h-24 flex-shrink-0 overflow-hidden rounded-2xl border border-slate-100 bg-slate-100">
+            <img src="{{ \Illuminate\Support\Str::startsWith($event->poster_path, 'http') ? $event->poster_path : asset('storage/' . $event->poster_path) }}" 
+                 alt="{{ $event->title }}"
+                 class="w-full h-full object-cover">
+        </div>
+        <div>
+            <h4 class="font-extrabold text-lg text-slate-800">{{ $event->title }}</h4>
+            <p class="text-slate-500 text-sm">
+                {{ \Carbon\Carbon::parse($event->date)->format('d M Y') }} • {{ $event->location }}
+            </p>
+            <p class="text-indigo-600 font-bold mt-2">
+                1 x Rp {{ number_format($event->price, 0, ',', '.') }}
+            </p>
+        </div>
+    </div>
 
             <!-- Perhitungan Rincian Harga -->
             @php
