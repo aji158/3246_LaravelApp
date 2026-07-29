@@ -3,27 +3,30 @@
 @section('content')
 
 <main class="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 lg:grid-cols-3 gap-12">
-    <!-- Left: Poster -->
-    <div class="lg:col-span-1">
-        <div class="sticky top-32">
-            <img src="{{ ($event->poster_path && Storage::disk('public')->exists($event->poster_path))
-                  ? asset('storage/' . $event->poster_path)
-                  : 'https://placehold.co/200x600' }}"
-                alt="{{ $event->title }}"
-                class="w-full rounded-[2.5rem] shadow-2xl border-8 border-white object-cover aspect-[3/4]">
-            <div class="mt-8 p-6 bg-white rounded-3xl border border-slate-100 shadow-sm">
-    <h4 class="font-bold mb-4">Penyelenggara</h4>
-    <div class="flex items-center gap-4">
-        <!-- Inisial Dinamis -->
-        <div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-bold uppercase">
-            {{ strtoupper(substr($event->user->organization_name ?? $event->user->name ?? 'Admin', 0, 2)) }}
-        </div>
-        <div>
-            <!-- Nama Organisasi / Penyelenggara Dinamis -->
-            <p class="font-bold text-slate-800">
-                {{ $event->user->organization_name ?? $event->user->name ?? 'Admin Amikom' }}
-            </p>
-            <p class="text-xs text-slate-500">Verified Organizer</p>
+    <!-- Left: Poster & Penyelenggara -->
+<div class="lg:col-span-1">
+    <div class="sticky top-32">
+        <!-- Poster Event -->
+        <img src="{{ \Illuminate\Support\Str::startsWith($event->poster_path, 'http') ? $event->poster_path : asset('storage/' . $event->poster_path) }}" 
+             alt="{{ $event->title }}" 
+             class="w-full rounded-[2.5rem] shadow-2xl border-8 border-white object-cover aspect-[3/4]">
+
+        <!-- Card Penyelenggara -->
+        <div class="mt-8 p-6 bg-white rounded-3xl border border-slate-100 shadow-sm">
+            <h4 class="font-bold mb-4">Penyelenggara</h4>
+            <div class="flex items-center gap-4">
+                <!-- Inisial Dinamis -->
+                <div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-bold uppercase">
+                    {{ strtoupper(substr($event->user->organization_name ?? $event->user->name ?? 'Admin', 0, 2)) }}
+                </div>
+                <div>
+                    <!-- Nama Organisasi / Penyelenggara Dinamis -->
+                    <p class="font-bold text-slate-800">
+                        {{ $event->user->organization_name ?? $event->user->name ?? 'Admin Amikom' }}
+                    </p>
+                    <p class="text-xs text-slate-500">Verified Organizer</p>
+                </div>
+            </div>
         </div>
     </div>
 </div>
