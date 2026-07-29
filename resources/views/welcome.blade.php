@@ -104,9 +104,9 @@
                 </div>
 
                 <!-- Logo Partner -->
-                <img src="{{ \Illuminate\Support\Str::startsWith($partner->logo_path, 'http') ? $partner->logo_path : asset('storage/' . $partner->logo_path) }}" ...>
-                     alt="{{ $partner->name }}"
-                     class="relative z-10 h-24 object-contain grayscale group-hover:grayscale-0 transition duration-500">
+                <img src="{{ \Illuminate\Support\Str::startsWith($partner->logo_path, 'http') ? $partner->logo_path : asset('storage/' . $partner->logo_path) }}" 
+     alt="{{ $partner->name }}"
+     class="relative z-10 h-24 object-contain grayscale group-hover:grayscale-0 transition duration-500">
 
             </div>
 
